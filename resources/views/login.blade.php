@@ -8,9 +8,14 @@
 </head>
 <body>
 
+    <h1>
+        @if(session('msg'))
+        {{ session('msg') }}
+        @endisset
+    </h1>
     <form action="{{ route('create') }}" method="POST">
         @csrf
-        <input type="text" value="{{ $tokenMissao }}">
+        <input type="hiden" value="{{ session('tokenMissao') }}">
         <input type="text" name="nickname">
         <input type="email" name="email">
         <input type="password" name="password">
