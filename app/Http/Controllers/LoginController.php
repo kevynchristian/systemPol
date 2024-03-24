@@ -21,6 +21,11 @@ class LoginController extends Controller
     /**
      * Display a listing of the resource.
      */
+
+    public function perfil(){
+        return view('profile.index');
+    }
+
     public function index()
     {
 
