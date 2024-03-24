@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\SystemConfig;
 use App\Models\User;
+use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 
 class LoginController extends Controller
@@ -25,16 +27,105 @@ class LoginController extends Controller
         $system = SystemConfig::where('id', 1)->firstOrFail();
 
         $tokenMissao = $system->system_init_motto;
-        $caracteres = 'AOCPTQW0123456789#&=';
+        $caracteres = 'AOCPTQW123456';
         $randomString = substr(str_shuffle($caracteres), 0, 5);
         $tokenMissao = $tokenMissao . $randomString;
+        session(['tokenMissao' => $tokenMissao]);
 
-        session(['tokenMissao' => 'teste']);
-
-
-        return view('login');
-
+        return view('auth.login');
     }
+
+    public function authenticate(Request $request)
+    {
+        $credentials = $request->validate([
+            'nickname' => ['required'],
+            'senha' => ['required'],
+        ]);
+
+
+        if (Auth::attempt(['nickname' => $request->usuario, 'password' => $request->senha])) {
+            $request->session()->regenerate();
+
+            $usuario = Auth::user(); // Obtenha o objeto do usuário autenticado
+            return $usuario;
+            if ($usuario->ativo) {
+                // Usuário ativo
+                $permissao_id = $usuario->permissao_id;
+                if ($usuario->permissao_id == 1) {
+                    return redirect()->route('usuarios', compact('usuario'));
+                } elseif ($usuario->permissao_id == 2) {
+                    return redirect()->route('protocolos', compact('usuario'));
+                } elseif ($usuario->permissao_id == 3) {
+                    return redirect()->route('index.protocolo', compact('usuario'));
+                }
+            } else {
+                // Usuário não está ativo
+                Auth::logout(); // Desconecta o usuário se não estiver ativo
+                Toastr::error('Entre em contato com o suporte.', 'Usuário Desativado!');
+                return redirect()->back();
+            }
+        }
+        Toastr::error('Verifique novamente seu usuário e senha.', 'Usuário ou Senha Incorretos!');
+        return redirect()->back();
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function register(Request $request)
+    {
+        $response = $this->habboController->getHabbo($request->nickname);
+
+        // Verifica se a resposta foi bem sucedida
+        if ($response->isSuccessful()) {
+            // Acessando os dados da resposta diretamente
+            $data = $response->original;
+
+            // Acessando as propriedades do objeto $data
+            $userMotto = $data['userInfo']['motto'];
+
+            $data = [
+                'token'=> session('tokenMissao'),
+                'missao' => $userMotto,
+            ];
+            if($userMotto == session('tokenMissao')){
+                $valid = $request->validate([
+                    'nickname' => 'required|unique:users|max:50',
+                    'email' => 'required|unique:users|max:70',
+                    'password' => 'required|max:50',
+                ], [
+                    'nickname.required' => 'O campo NickName não pode ficar em branco.',
+                    'nickname.max' => 'O campo NickName não pode ter mais de 50 caracteres.',
+                    'nickname.unique' => 'Já existe um NickName com esse nickname.',
+                    'email.required' => 'O campo Email não pode ficar em branco.',
+                    'email.max' => 'O campo Email não pode ter mais de 70 caracteres.',
+                    'email.unique' => 'Este Email já foi cadastrado.',
+                    'password.required' => 'O campo Senha não pode ficar em branco.',
+                    'password.max' => 'O campo Senha não pode ter mais de 50 caracteres.',
+                ]);
+
+                $user = [
+                    'nickname' => $valid['nickname'],
+                    'email' => $valid['email'],
+                    'password' => bcrypt($valid['password']),
+                    'permission' => 1,
+                ];
+
+                User::create($user);
+
+                return redirect('login')->with('msg', 'Conta cadastrada');
+            }
+            return response()->json(['error' => true, 'data' => $data]);
+
+        } else {
+            // Se a requisição falhar, retorna uma resposta de erro
+            return $response;
+        }
+
+
+        //$novoUsuario = User::with('departamento', 'permissao')->find($usuarioCriado->id);
+    }
+
 
     /**
      * Show the form for creating a new resource.
@@ -63,60 +154,6 @@ class LoginController extends Controller
 
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-
-        $response = $this->habboController->getHabbo($request->nickname);
-
-        // Verifica se a resposta foi bem sucedida
-        if ($response->isSuccessful()) {
-            // Acessando os dados da resposta diretamente
-            $data = $response->original;
-
-            // Acessando as propriedades do objeto $data
-            $userMotto = $data['userInfo']['motto'];
-
-
-            if($userMotto == session('tokenMissao')){
-                $valid = $request->validate([
-                    'nickname' => 'required|unique:users|max:50',
-                    'email' => 'required|unique:users|max:70',
-                    'password' => 'required|max:50',
-                ], [
-                    'nickname.required' => 'O campo NickName não pode ficar em branco.',
-                    'nickname.max' => 'O campo NickName não pode ter mais de 50 caracteres.',
-                    'nickname.unique' => 'Já existe um NickName com esse nickname.',
-                    'email.required' => 'O campo Email não pode ficar em branco.',
-                    'email.max' => 'O campo Email não pode ter mais de 70 caracteres.',
-                    'email.unique' => 'Este Email já foi cadastrado.',
-                    'password.required' => 'O campo Senha não pode ficar em branco.',
-                    'password.max' => 'O campo Senha não pode ter mais de 50 caracteres.',
-                ]);
-
-                $user = [
-                    'nickname' => $valid['nickname'],
-                    'email' => $valid['email'],
-                    'password' => bcrypt($valid['password']),
-                    'permission' => 1,
-                ];
-
-                User::create($user);
-                return redirect('login')->with('msg', 'Conta cadastrada');
-            }
-            session()->forget('tokenMissao');
-            return redirect('login')->with('msg', 'Código invalido');
-
-        } else {
-            // Se a requisição falhar, retorna uma resposta de erro
-            return $response;
-        }
-
-
-        //$novoUsuario = User::with('departamento', 'permissao')->find($usuarioCriado->id);
-    }
 
     /**
      * Display the specified resource.
