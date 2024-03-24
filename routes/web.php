@@ -33,5 +33,9 @@ Route::prefix('login')->group(function () {
     Route::get('/{nickname}', [LoginController::class, 'show'])->name('login.show');
 });
 
+Route::get('/perfil', [LoginController::class, 'perfil']);
+
+
+
 
 Route::get('/', [HomeController::class, 'index'])->name('dashboard')->middleware(Authenticate::class);
