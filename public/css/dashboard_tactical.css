@@ -233,6 +233,8 @@ html, body {
     border-radius: 50%;
     border: 2px solid var(--primary-color);
     margin-left: 15px;
+    object-fit: contain; /* <<-- MÁGICA 1: Encaixa a imagem sem distorcer */
+    background-color: var(--secondary-color); /* <<-- MÁGICA 2: Fundo para transparência */
 }
 
 /* Estilização do Conteúdo da Página */

@@ -93,9 +93,9 @@
                     </span>
 
                     {{-- Carrega o avatar dinâmico do Habbo --}}
-                    <img src="https://www.habbo.com.br/habbo-imaging/avatarimage?user={{ Auth::user()->nickname }}&direction=2&head_direction=3&gesture=sml"
-                        alt="Avatar" class="user-avatar"
-                        onerror="this.onerror=null;this.src='https://i.imgur.com/k9Q6E1p.png';"> {{-- Fallback caso a imagem do Habbo falhe --}}
+                    <img src="https://www.habbo.com.br/habbo-imaging/avatarimage?user={{ Auth::user()->nickname }}&direction=2&head_direction=3&gesture=sml&headonly=1"
+                        {{-- <<-- PARÂMETRO ADICIONADO AQUI --}} alt="Avatar" class="user-avatar"
+                        onerror="this.onerror=null;this.src='https://i.imgur.com/k9Q6E1p.png';">
                 </div>
             </header>
 
@@ -222,10 +222,10 @@
 
 
             document.addEventListener('click', (event) => {
-               if (!radioPlayer.contains(event.target) && isExpanded) {
-                   radioPlayer.classList.remove('active');
-                   isExpanded = false;
-               }
+                if (!radioPlayer.contains(event.target) && isExpanded) {
+                    radioPlayer.classList.remove('active');
+                    isExpanded = false;
+                }
             });
 
             volumeSlider.addEventListener('input', function() {
