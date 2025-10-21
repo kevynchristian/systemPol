@@ -819,6 +819,122 @@ html, body {
 }
 
 /* =================================== */
+/* CAROUSEL TÁTICO DE COMUNICADOS      */
+/* =================================== */
+
+.tactical-carousel {
+    border-top: 1px solid var(--border-color);
+}
+
+.tactical-carousel .announcement-banner {
+    /* Ajuste a altura se necessário, ou deixe automática */
+    /* max-height: 200px; */
+    object-fit: cover; /* Garante que a imagem cubra o espaço */
+    border: none;
+    margin-bottom: 0;
+}
+
+/* Customização da Legenda (Caption) */
+.tactical-carousel .carousel-caption {
+    position: static; /* Remove o posicionamento absoluto padrão */
+    background: var(--secondary-color);
+    padding: 1rem;
+    text-align: left;
+    color: var(--text-color);
+    width: 100%;
+}
+.tactical-carousel .carousel-caption p {
+    font-size: 0.85em;
+    margin-bottom: 0.75rem;
+    opacity: 0.9;
+}
+
+/* Customização dos Indicadores (Pontos) */
+.tactical-carousel .carousel-indicators {
+    position: static;
+    margin: 0.75rem 0 0 0; /* Espaçamento abaixo da legenda */
+    padding: 0;
+    justify-content: flex-start; /* Alinha à esquerda */
+    padding-left: 1rem;
+}
+.tactical-carousel .carousel-indicators button {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--border-color);
+    border: none;
+    opacity: 0.5;
+    transition: opacity 0.3s ease;
+}
+.tactical-carousel .carousel-indicators button.active {
+    background-color: var(--primary-color);
+    opacity: 1;
+}
+
+
+/* =================================== */
+/* CAROUSEL AUTOMÁTICO - ANTI-COLAPSO  */
+/* =================================== */
+
+.tactical-carousel .image-placeholder {
+    width: 100%;
+    aspect-ratio: 16 / 7; /* Define a proporção (largura/altura) - ajuste se suas imagens forem diferentes */
+    background-color: var(--secondary-color); /* Fundo caso a imagem falhe */
+    display: flex; /* Para centralizar o ícone de falha */
+    align-items: center;
+    justify-content: center;
+    overflow: hidden; /* Garante que a imagem não vaze */
+}
+
+/* Estilo quando a imagem falha */
+.tactical-carousel .image-placeholder.image-failed::before {
+    content: "\f128"; /* Código do ícone Font Awesome (imagem quebrada) */
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    font-size: 2rem;
+    color: var(--border-color);
+    opacity: 0.5;
+}
+
+.tactical-carousel .announcement-banner {
+    width: 100%;
+    height: 100%; /* Faz a imagem preencher o placeholder */
+    object-fit: cover; /* Garante que cubra sem distorcer */
+    border: none;
+    margin-bottom: 0;
+}
+
+/* =================================== */
+/* BOTÃO PRIMÁRIO TÁTICO (CAROUSEL)    */
+/* =================================== */
+
+.btn-primary-tactical {
+    display: inline-block; /* Garante que w-100 funcione */
+    padding: 0.5rem 1rem;
+    font-family: var(--font-primary);
+    text-transform: uppercase;
+    font-size: 0.8em;
+    letter-spacing: 1px;
+    text-align: center;
+    text-decoration: none;
+
+    background: transparent;
+    color: var(--primary-color) !important; /* Cor do texto verde */
+    border: 1px solid var(--primary-color) !important; /* Borda verde */
+    border-radius: 0; /* Bordas retas */
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-primary-tactical:hover,
+.btn-primary-tactical:focus {
+    background: var(--primary-color) !important; /* Fundo verde no hover */
+    color: var(--bg-color) !important; /* Texto escuro no hover */
+    box-shadow: 0 0 15px var(--border-glow); /* Efeito neon */
+    border-color: var(--primary-color) !important;
+}
+
+
+/* =================================== */
 /* ESTILO TÁTICO PARA SCROLLBAR        */
 /* =================================== */
 
@@ -986,8 +1102,10 @@ html, body {
     text-align: center;
 }
 .profile-vitals .avatar {
-    width: 100px;
-    height: 100px;
+    width: 96px; /* Aumentamos um pouco a largura (múltiplo de 64 para pixel perfect) */
+    height: auto; /* <<-- MÁGICA 1: Deixa a altura se ajustar à largura */
+    aspect-ratio: 64 / 110; /* <<-- MÁGICA 2: Força a proporção correta */
+    object-fit: contain; /* Garante que a imagem caiba sem cortar, se necessário */
     background-color: var(--bg-color);
     border: 2px solid var(--border-color);
     padding: 5px;
@@ -1080,6 +1198,149 @@ html, body {
 }
 .badge-item:hover {
     transform: scale(1.1);
+}
+
+/* =================================== */
+/* MÓDULO DE ANÚNCIO OFICIAL           */
+/* =================================== */
+
+.announcement-banner {
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--border-color);
+    margin-bottom: 1rem;
+}
+
+.announcement-description {
+    font-family: var(--font-secondary);
+    font-size: 0.85em;
+    color: var(--text-color);
+    opacity: 0.8;
+    margin-bottom: 1rem;
+    text-align: justify;
+}
+
+/* =================================== */
+/* PLAYER DE RÁDIO FLUTUANTE           */
+/* =================================== */
+
+.floating-radio-player {
+    position: fixed;
+    bottom: 90px; /* Acima do menu inferior */
+    right: 20px;
+    z-index: 1040; /* Acima da maioria dos elementos */
+    display: flex;
+    align-items: center;
+    background: var(--secondary-color);
+    border: 1px solid var(--border-color);
+    border-radius: 50px; /* Formato de pílula */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+    max-width: 60px; /* Começa pequeno, só o botão */
+    transition: all 0.4s ease-in-out;
+}
+
+.floating-radio-player.active {
+    max-width: 300px; /* Largura quando expandido */
+}
+
+.fab-main-radio {
+    flex-shrink: 0; /* Impede que o botão encolha */
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: var(--bg-color);
+    border: none;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.fab-main-radio:hover {
+    background-color: #33ff99; /* Cor mais clara no hover */
+}
+
+.radio-controls {
+    flex-grow: 1;
+    padding: 0 1.5rem 0 1rem; /* Espaçamento interno */
+    opacity: 0; /* Começa invisível */
+    transition: opacity 0.3s ease-in-out 0.1s; /* Aparece com atraso */
+    display: flex;
+    align-items: center;
+    min-width: 200px; /* Garante espaço mínimo para o volume */
+}
+
+.floating-radio-player.active .radio-controls {
+    opacity: 1; /* Fica visível quando ativo */
+}
+
+.radio-controls .volume-control {
+    width: 100%; /* Ocupa todo o espaço disponível */
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--primary-color);
+}
+
+/* Ajuste para telas pequenas */
+@media (max-width: 768px) {
+    .floating-radio-player {
+        bottom: 70px; /* Um pouco mais para cima no celular */
+        right: 15px;
+    }
+    .floating-radio-player.active {
+        max-width: calc(100vw - 30px); /* Ocupa quase toda a largura */
+    }
+     .radio-controls {
+        padding: 0 1rem 0 0.75rem;
+    }
+}
+
+/* Estilização do Slider de Volume */
+input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    background: transparent;
+}
+input[type=range]:focus {
+    outline: none;
+}
+/* --- Chrome/Safari/Edge --- */
+input[type=range]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 6px;
+    cursor: pointer;
+    background: var(--secondary-color);
+    border: 1px solid var(--border-color);
+}
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 20px;
+    width: 10px;
+    background: var(--primary-color);
+    cursor: pointer;
+    margin-top: -8px; /* Centraliza o thumb na track */
+    box-shadow: 0 0 10px var(--border-glow);
+}
+/* --- Firefox --- */
+input[type=range]::-moz-range-track {
+    width: 100%;
+    height: 6px;
+    cursor: pointer;
+    background: var(--secondary-color);
+    border: 1px solid var(--border-color);
+}
+input[type=range]::-moz-range-thumb {
+    height: 20px;
+    width: 10px;
+    background: var(--primary-color);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 0 10px var(--border-glow);
 }
 
 /* Animações de Pulso */

@@ -44,7 +44,7 @@
                     <div class="input-group mb-3">
                         <span class="input-group-text"><i class="fa fa-user-shield fa-fw"></i></span>
                         <input type="text" name="nickname" id="nickname" class="form-control"
-                            placeholder="ID DE OPERADOR (NICKNAME)" required>
+                            placeholder="ID DE OPERADOR (NICKNAME)" required value="{{ old('nickname') }}">
                     </div>
 
                     <div class="input-group mb-4">

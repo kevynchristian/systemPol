@@ -237,6 +237,35 @@ h3 {
     text-shadow: 0 0 2px rgba(0, 0, 0, 0.5); /* Adiciona uma pequena sombra para destacar */
 }
 
+
+/* =================================== */
+/* AJUSTES RESPONSIVOS PARA MOBILE     */
+/* =================================== */
+
+@media (max-width: 480px) { /* Aplica estas regras em telas com 480px de largura ou menos */
+
+    .login-card {
+        width: 100%;
+        padding: 1.5rem; /* Reduz o espaçamento interno no celular */
+    }
+
+    .terminal-header {
+        padding: 8px 10px; /* Reduz o padding do cabeçalho */
+    }
+
+    .header-dots {
+        flex-shrink: 0; /* ORDEM TÁTICA 1: Impede que os 'botões' sejam esmagados */
+    }
+
+    .header-title {
+        font-size: 0.7em; /* ORDEM TÁTICA 2: Reduz o tamanho da fonte para caber */
+        letter-spacing: 1px; /* Reduz um pouco o espaçamento entre as letras */
+        white-space: nowrap; /* Garante que o texto não quebre a linha */
+        overflow: hidden;    /* Esconde o que transbordar (segurança) */
+        text-overflow: ellipsis; /* Adiciona "..." se o texto ainda for muito grande */
+    }
+}
+
 /* =================================== */
 /* TEMA TÁTICO PARA IZITOAST           */
 /* =================================== */

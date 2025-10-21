@@ -37,15 +37,15 @@
                         <a href="{{ route('dashboard') }}"><i class="fas fa-tachometer-alt fa-fw"></i>
                             <span>Dashboard</span></a>
                     </li>
-                    <li>
-                        <a href="#"><i class="fas fa-users fa-fw"></i> <span>Operadores</span></a>
-                    </li>
-                    <li>
-                        <a href="#"><i class="fas fa-chart-line fa-fw"></i> <span>Relatórios</span></a>
-                    </li>
 
                     {{-- Bloco de Administração (só para Super Admin) --}}
                     @if (auth()->user() && auth()->user()->is_admin)
+                        <li>
+                            <a href="#"><i class="fas fa-users fa-fw"></i> <span>Operadores</span></a>
+                        </li>
+                        <li>
+                            <a href="#"><i class="fas fa-chart-line fa-fw"></i> <span>Relatórios</span></a>
+                        </li>
                         <li class="has-submenu {{ request()->routeIs('admin.*') ? 'open active' : '' }}">
                             <a href="#" class="submenu-toggle">
                                 <i class="fas fa-user-shield fa-fw"></i>
@@ -83,9 +83,19 @@
                     <i class="fas fa-shield-alt"></i>
                     <span>SISTEMA SEGURO</span>
                 </div>
+
                 <div class="user-info">
-                    <span>Bem-vindo, Operador <strong>{{ Auth::user()->nickname }}</strong></span>
-                    <img src="https://i.imgur.com/k9Q6E1p.png" alt="Avatar" class="user-avatar">
+                    <span>
+                        Bem-vindo,
+                        {{-- Pega a primeira patente do usuário (onde hierarquia > 0) --}}
+                        {{ Auth::user()->roles->where('hierarquia', '>', 0)->first()?->name }}
+                        <strong>{{ Auth::user()->nickname }}</strong>
+                    </span>
+
+                    {{-- Carrega o avatar dinâmico do Habbo --}}
+                    <img src="https://www.habbo.com.br/habbo-imaging/avatarimage?user={{ Auth::user()->nickname }}&direction=2&head_direction=3&gesture=sml"
+                        alt="Avatar" class="user-avatar"
+                        onerror="this.onerror=null;this.src='https://i.imgur.com/k9Q6E1p.png';"> {{-- Fallback caso a imagem do Habbo falhe --}}
                 </div>
             </header>
 
@@ -100,26 +110,24 @@
             <i class="fas fa-tachometer-alt fa-fw"></i>
             <span>Dashboard</span>
         </a>
-        <a href="#" class="nav-link">
-            <i class="fas fa-users fa-fw"></i>
-            <span>Operadores</span>
-        </a>
 
         {{-- NOVO BOTÃO DE ADMIN PARA O CELULAR --}}
         @if (auth()->user() && auth()->user()->is_admin)
+            <a href="#" class="nav-link">
+                <i class="fas fa-users fa-fw"></i>
+                <span>Operadores</span>
+            </a>
             <a href="{{ route('admin.patentes.index') }}"
                 class="nav-link {{ request()->routeIs('admin.*') ? 'active' : '' }}">
                 <i class="fas fa-user-shield fa-fw"></i>
                 <span>Admin</span>
             </a>
+            <a href="#" class="nav-link">
+                <i class="fas fa-chart-line fa-fw"></i>
+                <span>Relatórios</span>
+            </a>
         @endif
-
-        <a href="#" class="nav-link">
-            <i class="fas fa-chart-line fa-fw"></i>
-            <span>Relatórios</span>
-        </a>
     </nav>
-
     <div class="floating-action-menu">
         <ul class="fab-options">
             <li>
@@ -140,54 +148,136 @@
         </button>
     </div>
 
+    <div class="floating-radio-player" id="floating-radio-player">
+        {{-- O elemento de áudio real --}}
+        <audio id="radio-stream" preload="none">
+            <source src="https://stream.zeno.fm/umhxwwtke0hvv" type="audio/mpeg">
+        </audio>
+
+        {{-- Botão Principal (Abre/Fecha e Play/Pause) --}}
+        <button id="radio-toggle-btn" class="fab-main-radio">
+            <i class="fas fa-play"></i> {{-- Começa com play --}}
+        </button>
+
+        {{-- Controles que aparecem ao abrir --}}
+        <div class="radio-controls">
+            <div class="volume-control">
+                <i class="fas fa-volume-down"></i>
+                <input type="range" id="volume-slider" min="0" max="1" step="0.01"
+                    value="0.5">
+                <i class="fas fa-volume-up"></i>
+            </div>
+            {{-- Pode adicionar um span para mostrar o nome da rádio ou música aqui depois --}}
+        </div>
+    </div>
+
 
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js"></script>
-<script src="{{ asset('js/login_tactical.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js"></script>
+    <script src="{{ asset('js/login_tactical.js') }}"></script>
 
-{{-- SCRIPT ÚNICO PARA LÓGICAS DA PÁGINA E NOTIFICAÇÕES --}}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
+    {{-- SCRIPT ÚNICO PARA LÓGICAS DA PÁGINA E NOTIFICAÇÕES --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
 
-        // --- LÓGICA DO FAB MENU (MENU FLUTUANTE) ---
-        const fabContainer = document.querySelector('.floating-action-menu');
-        const fabMainButton = document.querySelector('.fab-main');
+            // --- LÓGICA DO FAB MENU (MENU FLUTUANTE) ---
+            const fabContainer = document.querySelector('.floating-action-menu');
+            const fabMainButton = document.querySelector('.fab-main');
 
-        if (fabMainButton) {
-            fabMainButton.addEventListener('click', () => {
-                fabContainer.classList.toggle('active');
+            // --- LÓGICA DO PLAYER FLUTUANTE (ADICIONE AQUI) ---
+            const radioPlayer = document.getElementById('floating-radio-player');
+            const radioStream = document.getElementById('radio-stream');
+            const toggleBtn = document.getElementById('radio-toggle-btn');
+            const volumeSlider = document.getElementById('volume-slider');
+            const toggleIcon = toggleBtn.querySelector('i');
+
+            let isPlaying = false;
+            let isExpanded = false;
+
+            toggleBtn.addEventListener('click', () => {
+                if (!isExpanded) {
+                    // Primeira vez clicado: Abre e Toca
+                    radioPlayer.classList.add('active');
+                    isExpanded = true;
+                    if (!isPlaying) {
+                        radioStream.play().catch(e => console.error("Erro ao tocar:", e));
+                        toggleIcon.className = 'fas fa-pause';
+                        isPlaying = true;
+                    }
+                } else {
+                    // Já estava aberto: Toca ou Pausa
+                    if (isPlaying) {
+                        radioStream.pause();
+                        toggleIcon.className = 'fas fa-play';
+                        isPlaying = false;
+                    } else {
+                        radioStream.play().catch(e => console.error("Erro ao tocar:", e));
+                        toggleIcon.className = 'fas fa-pause';
+                        isPlaying = true;
+                    }
+                }
             });
-        }
 
-        // --- LÓGICA DO SUBMENU (CORRIGIDA) ---
-        document.querySelectorAll('.submenu-toggle').forEach(toggle => {
-            toggle.addEventListener('click', function(event) {
-                event.preventDefault();
-                this.parentElement.classList.toggle('open');
+
+            document.addEventListener('click', (event) => {
+               if (!radioPlayer.contains(event.target) && isExpanded) {
+                   radioPlayer.classList.remove('active');
+                   isExpanded = false;
+               }
             });
+
+            volumeSlider.addEventListener('input', function() {
+                radioStream.volume = this.value;
+            });
+
+            radioStream.addEventListener('error', function() {
+                iziToast.error({
+                    title: 'ERRO',
+                    message: 'Não foi possível carregar o stream da rádio.',
+                    position: 'topRight',
+                    icon: 'fas fa-times-circle',
+                });
+                toggleIcon.className = 'fas fa-play';
+                isPlaying = false;
+                radioPlayer.classList.remove('active'); // Fecha em caso de erro
+                isExpanded = false;
+            });
+
+            if (fabMainButton) {
+                fabMainButton.addEventListener('click', () => {
+                    fabContainer.classList.toggle('active');
+                });
+            }
+
+            // --- LÓGICA DO SUBMENU (CORRIGIDA) ---
+            document.querySelectorAll('.submenu-toggle').forEach(toggle => {
+                toggle.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    this.parentElement.classList.toggle('open');
+                });
+            });
+
+            // --- LÓGICA DAS NOTIFICAÇÕES GLOBAIS (IZITOAST) ---
+            @if (session('success'))
+                iziToast.success({
+                    title: 'SUCESSO',
+                    message: '{{ session('success') }}',
+                    position: 'topRight',
+                    icon: 'fas fa-check-circle',
+                });
+            @elseif (session('error'))
+                iziToast.error({
+                    title: 'ERRO',
+                    message: '{{ session('error') }}',
+                    position: 'topRight',
+                    icon: 'fas fa-times-circle',
+                });
+            @endif
+            // Adicione 'warning' e 'info' aqui se precisar
         });
-
-        // --- LÓGICA DAS NOTIFICAÇÕES GLOBAIS (IZITOAST) ---
-        @if (session('success'))
-            iziToast.success({
-                title: 'SUCESSO',
-                message: '{{ session('success') }}',
-                position: 'topRight',
-                icon: 'fas fa-check-circle',
-            });
-        @elseif (session('error'))
-            iziToast.error({
-                title: 'ERRO',
-                message: '{{ session('error') }}',
-                position: 'topRight',
-                icon: 'fas fa-times-circle',
-            });
-        @endif
-        // Adicione 'warning' e 'info' aqui se precisar
-    });
-</script>
+    </script>
     @stack('scripts') {{-- Mantém o @stack para scripts específicos da página --}}
 </body>
 

@@ -100,46 +100,11 @@ class LoginController extends Controller
             'nickname'   => $validated['nickname'],
             'email'      => $validated['email'],
             'password'   => bcrypt($validated['password']),
-            'permission' => 1, // Permissão padrão para novos usuários
             'ativo'      => true,
         ]);
 
         Toastr::success('Sua conta foi criada com sucesso!', 'Bem-vindo(a)!');
         return response()->json(['success' => true, 'message' => 'Conta criada com sucesso!'], 201);
-    }
-
-    /**
-     * Exibe o perfil público de um usuário (exemplo refatorado do seu método 'show').
-     */
-    public function showProfile(string $nickname)
-    {
-        $habboData = $this->habboApi->getUserData($nickname);
-
-        if (!$habboData) {
-            abort(404, 'Usuário não encontrado.');
-        }
-
-        // Mova essa lógica para um arquivo de config, ex: config/habbo.php
-        $permissionGroups = [
-            'soldado' => 'g-hhbr-3804c4b79cf892bc50938d55adfdc44a',
-            'cabo'    => 'g-hhbr-ca5a69adf6ba7fc025acc8faccf53cfc',
-        ];
-
-        $userGroups = collect($habboData['groups']);
-
-        $filteredGroups = $userGroups->filter(function ($group) use ($permissionGroups) {
-            return in_array($group['id'], $permissionGroups);
-        })->map(function ($group) {
-            // Adiciona a URL do emblema diretamente no array do grupo
-            $group['badgeUrl'] = $this->habboApi->getGroupBadgeUrl($group['badgeCode']);
-            return $group;
-        });
-
-        // Passe os dados para a view, que será responsável por exibir o HTML
-        return view('profile.show', [
-            'userInfo' => $habboData['info'],
-            'groups'   => $filteredGroups,
-        ]);
     }
 
     /**

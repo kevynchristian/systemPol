@@ -4,98 +4,97 @@
 
 @section('content')
 
-    <div class="card-tactical search-terminal mb-4">
-        <div class="card-header-tactical">
-            <i class="fas fa-search me-2"></i>TERMINAL DE BUSCA RÁPIDA DE OPERADOR
-        </div>
-        <div class="card-body-tactical">
-            <div class="input-group">
-                <span class="input-group-text">></span>
-                <input type="text" id="operator-search-input" class="form-control"
-                    placeholder="DIGITE O NICKNAME EXATO DO OPERADOR E AGUARDE..." autocomplete="off">
+    @if (auth()->user() && auth()->user()->is_admin)
+        <div class="row">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card-tactical">
+                    <div class="card-body-tactical">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-uppercase mb-1">Operadores Ativos</div>
+                                <div class="h5 mb-0 font-weight-bold">47</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-user-astronaut fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            {{-- Área de Resultados --}}
-            <div id="operator-search-results" class="mt-3">
-                {{-- O status da busca aparecerá aqui --}}
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card-tactical">
+                    <div class="card-body-tactical">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-uppercase mb-1">Relatórios Gerados (Mês)</div>
+                                <div class="h5 mb-0 font-weight-bold">189</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-file-invoice fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card-tactical">
+                    <div class="card-body-tactical">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-uppercase mb-1">Alertas do Sistema</div>
+                                <div class="h5 mb-0 font-weight-bold text-warning">3</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-exclamation-triangle fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card-tactical">
+                    <div class="card-body-tactical">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-uppercase mb-1">Uptime do Servidor</div>
+                                <div class="h5 mb-0 font-weight-bold">99.8%</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-server fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-
-    <div class="page-header">
-        <h1 class="glitch" data-text="DASHBOARD">DASHBOARD</h1>
-        <p>Status operacional e métricas em tempo real.</p>
-    </div>
+    @endif
 
     <div class="row">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card-tactical">
+
+        {{-- COLUNA DA ESQUERDA (75% da largura) --}}
+        <div class="col-lg-8">
+            {{-- Terminal de Busca (ocupa 100% da coluna da esquerda) --}}
+            <div class="card-tactical search-terminal mb-4">
+                <div class="card-header-tactical">
+                    <i class="fas fa-search me-2"></i>TERMINAL DE BUSCA RÁPIDA DE OPERADOR
+                </div>
                 <div class="card-body-tactical">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-uppercase mb-1">Operadores Ativos</div>
-                            <div class="h5 mb-0 font-weight-bold">47</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-user-astronaut fa-2x"></i>
-                        </div>
+                    <div class="input-group">
+                        <span class="input-group-text">></span>
+                        <input type="text" id="operator-search-input" class="form-control"
+                            placeholder="DIGITE O NICKNAME EXATO DO OPERADOR E AGUARDE..." autocomplete="off">
+                    </div>
+                    <div id="operator-search-results" class="mt-3">
+                        {{-- O status da busca aparecerá aqui --}}
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card-tactical">
-                <div class="card-body-tactical">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-uppercase mb-1">Relatórios Gerados (Mês)</div>
-                            <div class="h5 mb-0 font-weight-bold">189</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-file-invoice fa-2x"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card-tactical">
-                <div class="card-body-tactical">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-uppercase mb-1">Alertas do Sistema</div>
-                            <div class="h5 mb-0 font-weight-bold text-warning">3</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-exclamation-triangle fa-2x"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card-tactical">
-                <div class="card-body-tactical">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-uppercase mb-1">Uptime do Servidor</div>
-                            <div class="h5 mb-0 font-weight-bold">99.8%</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-server fa-2x"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-7 mb-4">
-            <div class="card-tactical">
+            {{-- Atividade Recente (ocupa 100% da coluna da esquerda) --}}
+            <div class="card-tactical mb-4">
                 <div class="card-header-tactical">
                     <i class="fas fa-chart-area mr-1"></i>
                     Atividade Recente do Sistema
@@ -107,25 +106,104 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-5 mb-4">
-            <div class="card-tactical">
+
+        {{-- COLUNA DA DIREITA (PAINEL DE WIDGETS) --}}
+        <div class="col-lg-4">
+
+            {{-- NOVO CAROUSEL AUTOMÁTICO DE COMUNICADOS --}}
+            <div class="card-tactical mb-4">
                 <div class="card-header-tactical">
-                    <i class="fas fa-terminal mr-1"></i>
-                    Últimos Logs de Acesso
+                    <i class="fas fa-bullhorn mr-1"></i> COMUNICADOS
+                    {{-- Controles de Navegação REMOVIDOS daqui --}}
                 </div>
-                <div class="card-body-tactical log-feed">
-                    <p><span class="log-time">[17:55:01]</span> <span class="log-info">[INFO]</span> Login bem-sucedido para
-                        operador 'Kevyn'.</p>
-                    <p><span class="log-time">[17:54:23]</span> <span class="log-warn">[WARN]</span> Tentativa de acesso
-                        falhou para IP 192.168.1.5.</p>
-                    <p><span class="log-time">[17:52:10]</span> <span class="log-info">[INFO]</span> Login bem-sucedido para
-                        operador 'Mikael'.</p>
-                    <p><span class="log-time">[17:50:05]</span> <span class="log-error">[ERROR]</span> Falha ao conectar ao
-                        banco de dados secundário.</p>
-                    <p><span class="log-time">[17:48:33]</span> <span class="log-info">[INFO]</span> Relatório mensal #189
-                        gerado.</p>
+                <div id="announcementCarousel" class="carousel slide tactical-carousel" data-bs-ride="carousel"
+                    data-bs-interval="7000"> {{-- Autoplay ativado, intervalo de 7 segundos --}}
+
+                    {{-- Indicadores (Pontos - mantidos para referência) --}}
+                    <div class="carousel-indicators">
+                        <button type="button" data-bs-target="#announcementCarousel" data-bs-slide-to="0" class="active"
+                            aria-current="true" aria-label="Slide 1"></button>
+                        <button type="button" data-bs-target="#announcementCarousel" data-bs-slide-to="1"
+                            aria-label="Slide 2"></button>
+                        <button type="button" data-bs-target="#announcementCarousel" data-bs-slide-to="2"
+                            aria-label="Slide 3"></button>
+                    </div>
+
+                    {{-- Slides --}}
+                    <div class="carousel-inner">
+                        {{-- Slide 1 --}}
+                        <div class="carousel-item active">
+                            <div class="image-placeholder"> {{-- Novo container para a imagem --}}
+                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTWcsKq-YH8z86s4TDlRUW8Us1KNcv94CHi-A&s" class="d-block w-100 announcement-banner"
+                                    alt="Treinamento"
+                                    onerror="this.parentElement.classList.add('image-failed'); this.style.display='none';">
+                                {{-- Fallback visual --}}
+                            </div>
+                            <div class="carousel-caption d-none d-md-block">
+                                <p class="announcement-description">Pagamento Geral.</p>
+                                <a href="#" class="btn btn-sm btn-primary-tactical">VER DETALHES</a>
+                            </div>
+                        </div>
+                        {{-- Slide 2 (Exemplo) --}}
+                        <div class="carousel-item">
+                            <div class="image-placeholder">
+                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR5Sf7WUfkPiJvENz3vjaitVVT9rPrJ0LE7GxRsyYPc-DZb3i1CHnHLPmJib12NB6c66SA&usqp=CAU" {{-- URL inválida para testar --}}
+                                    class="d-block w-100 announcement-banner" alt="Diretriz"
+                                    onerror="this.parentElement.classList.add('image-failed'); this.style.display='none';">
+                            </div>
+                            <div class="carousel-caption d-none d-md-block">
+                                <p class="announcement-description">Nova diretriz de comunicação implementada. Leia agora.
+                                </p>
+                                <a href="#" class="btn btn-sm btn-primary-tactical">LER DIRETRIZ</a>
+                            </div>
+                        </div>
+                        {{-- Slide 3 (Exemplo) --}}
+                        <div class="carousel-item">
+                            <div class="image-placeholder">
+                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIQll7X9JzYbKF5_81-Dez0DEfX7Fyx4TRRgZskWIgwK_SEZdNnK6uQs4TV1ev0vTBDVg&usqp=CAU"
+                                    class="d-block w-100 announcement-banner" alt="Alerta"
+                                    onerror="this.parentElement.classList.add('image-failed'); this.style.display='none';">
+                            </div>
+                            <div class="carousel-caption d-none d-md-block">
+                                <p class="announcement-description">Manutenção programada do servidor secundário hoje às
+                                    23:00.</p>
+                                <a href="#" class="btn btn-sm btn-primary-tactical">MAIS INFO</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            {{-- 1. AÇÕES RÁPIDAS (RESTAURADO) --}}
+            <div class="card-tactical mb-4">
+                <div class="card-header-tactical">
+                    <i class="fas fa-bolt mr-1"></i> AÇÕES RÁPIDAS
+                </div>
+                <div class="card-body-tactical">
+                    <ul class="quick-links-list">
+                        <li><a href="#"><i class="fas fa-user-plus fa-fw"></i> Registrar Operador</a></li>
+                        <li><a href="#"><i class="fas fa-gavel fa-fw"></i> Aplicar Punição</a></li>
+                        <li><a href="#"><i class="fas fa-file-alt fa-fw"></i> Gerar Relatório</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            {{-- 3. ÚLTIMOS LOGS (REPOSICIONADO) --}}
+            <div class="card-tactical mb-4">
+                <div class="card-header-tactical">
+                    <i class="fas fa-terminal mr-1"></i> Últimos Logs
+                </div>
+                <div class="card-body-tactical log-feed" style="max-height: 200px; overflow-y: auto;">
+                    <p><span class="log-time">[17:55]</span><span class="log-info">[INFO]</span> Login: Kevyn.</p>
+                    <p><span class="log-time">[17:54]</span><span class="log-warn">[WARN]</span> Acesso falhou:
+                        192.168.1.5.
+                    </p>
+                    <p><span class="log-time">[17:52]</span><span class="log-info">[INFO]</span> Login: Mikael.</p>
+                    <p><span class="log-time">[17:50]</span><span class="log-error">[ERROR]</span> DB Secundário offline.
+                    </p>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -214,50 +292,50 @@
                             }
 
                             const profileHtml = `
-    <div class="operator-profile-card">
-        <div class="profile-content-grid">
+                                <div class="operator-profile-card">
+                                    <div class="profile-content-grid">
 
-            {{-- COLUNA DA ESQUERDA: VITAIS --}}
-            <div class="profile-vitals">
-                <img src="${data.avatar_url}" alt="Avatar" class="avatar" width="50" height="80">
-                <div class="vitals-item">
-                    <label>Status</label>
-                    <span>
-                        <span class="online-indicator ${data.online_agora ? 'is-online' : ''}" title="${data.online_agora ? 'Online Agora' : 'Offline'}"></span>
-                        ${data.online_agora ? 'Online' : 'Offline'}
-                    </span>
-                </div>
-                <div class="vitals-item">
-                    <label>Status S.I.G.O.</label>
-                    <span class="${data.status_class}">${data.status}</span>
-                </div>
-                 <div class="vitals-item">
-                    <label>Patente</label>
-                    <span>${data.patente}</span>
-                </div>
-            </div>
+                                        {{-- COLUNA DA ESQUERDA: VITAIS --}}
+                                        <div class="profile-vitals">
+                                            <img src="${data.avatar_url}" alt="Avatar" class="avatar">
+                                            <div class="vitals-item">
+                                                <label>Status</label>
+                                                <span>
+                                                    <span class="online-indicator ${data.online_agora ? 'is-online' : ''}" title="${data.online_agora ? 'Online Agora' : 'Offline'}"></span>
+                                                    ${data.online_agora ? 'Online' : 'Offline'}
+                                                </span>
+                                            </div>
+                                            <div class="vitals-item">
+                                                <label>Status S.I.G.O.</label>
+                                                <span class="${data.status_class}">${data.status}</span>
+                                            </div>
+                                            <div class="vitals-item">
+                                                <label>Patente</label>
+                                                <span>${data.patente}</span>
+                                            </div>
+                                        </div>
 
-            {{-- COLUNA DA DIREITA: DETALHES --}}
-            <div class="profile-details">
-                <div class="detail-section">
-                    <label>Missão In-Game (Último Acesso: ${data.ultimo_acesso_habbo})</label>
-                    <blockquote class="operator-mission">${data.missao}</blockquote>
-                </div>
+                                        {{-- COLUNA DA DIREITA: DETALHES --}}
+                                        <div class="profile-details">
+                                            <div class="detail-section">
+                                                <label>Missão In-Game (Último Acesso: ${data.ultimo_acesso_habbo})</label>
+                                                <blockquote class="operator-mission">${data.missao}</blockquote>
+                                            </div>
 
-                <div class="detail-section">
-                    <label>Tempo de Serviço</label>
-                    <p class="mb-0">${data.tempo_de_servico}</p>
-                </div>
+                                            <div class="detail-section">
+                                                <label>Tempo de Serviço</label>
+                                                <p class="mb-0">${data.tempo_de_servico}</p>
+                                            </div>
 
-                <div class="detail-section">
-                    <label>Emblemas Destacados</label>
-                    <div class="badges-grid">${badgesHtml}</div>
-                </div>
-            </div>
+                                            <div class="detail-section">
+                                                <label>Emblemas Destacados</label>
+                                                <div class="badges-grid">${badgesHtml}</div>
+                                            </div>
+                                        </div>
 
-        </div>
-    </div>
-`;
+                                    </div>
+                                </div>
+                            `;
 
                             // ### ESPIÃO 1: VERIFICAR OS DADOS RECEBIDOS ###
                             console.log("DADOS RECEBIDOS DO SERVIDOR:", data);
