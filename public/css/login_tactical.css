@@ -1,0 +1,307 @@
+:root {
+    --primary-color: #00ff7f; /* Verde-militar/neon */
+    --secondary-color: #0a180f;
+    --bg-color: #020a04;
+    --text-color: #c7ffd8;
+    --border-color: rgba(0, 255, 127, 0.2);
+    --border-glow: rgba(0, 255, 127, 0.5);
+    --font-primary: 'Orbitron', sans-serif;
+    --font-secondary: 'Roboto Mono', monospace;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Evita barras de rolagem */
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: var(--font-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Fundo Animado */
+#particles-js {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 0;
+}
+
+/* Efeito de Scanline (tela antiga) */
+.scanline {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 51%, rgba(0,0,0,0.5) 100%);
+    background-size: 100% 4px;
+    animation: scan 15s linear infinite;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.login-container {
+    position: relative;
+    z-index: 2;
+}
+
+.login-card {
+    width: 450px;
+    background: rgba(10, 24, 15, 0.85);
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 0 30px var(--border-glow);
+    animation: border-glow 4s infinite alternate;
+    clip-path: polygon(0% 15px, 15px 0%, 100% 0%, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0% 100%);
+}
+
+.terminal-header {
+    background-color: var(--secondary-color);
+    padding: 8px 15px;
+    font-family: var(--font-primary);
+    font-size: 0.8em;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.header-dots span {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #333;
+    margin-right: 5px;
+}
+.header-dots span:nth-child(1) { background-color: #ff5f56; }
+.header-dots span:nth-child(2) { background-color: #ffbd2e; }
+.header-dots span:nth-child(3) { background-color: #27c93f; }
+
+.header-title {
+    margin-left: auto;
+    color: var(--primary-color);
+    letter-spacing: 2px;
+}
+
+.card-content {
+    padding: 2rem;
+}
+
+.brand_logo {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 2px solid var(--primary-color);
+    padding: 3px;
+    background-color: var(--bg-color);
+}
+
+h3 {
+    font-family: var(--font-primary);
+    color: var(--primary-color);
+    text-transform: uppercase;
+    text-shadow: 0 0 5px var(--primary-color);
+}
+
+.input-group-text {
+    background-color: var(--secondary-color);
+    border: 1px solid var(--border-color);
+    color: var(--primary-color);
+}
+
+.form-control {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    font-family: var(--font-secondary);
+}
+
+.form-control::placeholder {
+    color: rgba(0, 255, 127, 0.4);
+}
+
+.form-control:focus {
+    background-color: transparent;
+    color: var(--text-color);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 10px var(--border-glow);
+}
+
+.login_btn {
+    width: 100%;
+    background: transparent;
+    color: var(--primary-color) !important;
+    border: 2px solid var(--primary-color) !important;
+    font-family: var(--font-primary);
+    letter-spacing: 3px;
+    transition: all 0.3s ease;
+}
+
+.login_btn:hover {
+    background: var(--primary-color) !important;
+    color: var(--bg-color) !important;
+    box-shadow: 0 0 20px var(--primary-color);
+}
+
+.links a {
+    color: var(--primary-color);
+    text-decoration: none;
+    text-transform: uppercase;
+    font-size: 0.8em;
+    transition: all 0.2s ease;
+}
+
+.links a:hover {
+    text-shadow: 0 0 5px var(--primary-color);
+    text-decoration: underline;
+}
+
+.footer-text {
+    font-family: var(--font-secondary);
+    font-size: 0.8em;
+    color: rgba(0, 255, 127, 0.4);
+    z-index: 2;
+}
+
+/* Efeito Glitch no Título */
+.glitch {
+    position: relative;
+}
+.glitch::before,
+.glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-color);
+    overflow: hidden;
+}
+.glitch::before {
+    left: 2px;
+    text-shadow: -1px 0 red;
+    animation: glitch-anim-1 2s infinite linear alternate-reverse;
+}
+.glitch::after {
+    left: -2px;
+    text-shadow: -1px 0 blue;
+    animation: glitch-anim-2 2s infinite linear alternate-reverse;
+}
+
+
+/* Animações */
+@keyframes scan {
+    0% { transform: translateY(-10%); }
+    100% { transform: translateY(10%); }
+}
+
+@keyframes border-glow {
+    from {
+        box-shadow: 0 0 15px var(--border-glow);
+    }
+    to {
+        box-shadow: 0 0 30px var(--border-glow);
+    }
+}
+
+@keyframes glitch-anim-1 {
+    0% { clip: rect(25px, 9999px, 93px, 0); }
+    10% { clip: rect(98px, 9999px, 6px, 0); }
+    20% { clip: rect(48px, 9999px, 80px, 0); }
+    /* ... (adicione mais steps se quiser) */
+    100% { clip: rect(63px, 9999px, 8px, 0); }
+}
+
+@keyframes glitch-anim-2 {
+    0% { clip: rect(91px, 9999px, 97px, 0); }
+    15% { clip: rect(21px, 9999px, 5px, 0); }
+    30% { clip: rect(69px, 9999px, 83px, 0); }
+    /* ... (adicione mais steps se quiser) */
+    100% { clip: rect(3px, 9999px, 57px, 0); }
+}
+
+.modal-body .text-muted,
+.modal-body .small {
+    color: rgba(199, 255, 216, 0.7) !important; /* Usa uma variação da cor do texto principal, mas mais brilhante */
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.5); /* Adiciona uma pequena sombra para destacar */
+}
+
+
+/* =================================== */
+/* AJUSTES RESPONSIVOS PARA MOBILE     */
+/* =================================== */
+
+@media (max-width: 480px) { /* Aplica estas regras em telas com 480px de largura ou menos */
+
+    .login-card {
+        width: 100%;
+        padding: 1.5rem; /* Reduz o espaçamento interno no celular */
+    }
+
+    .terminal-header {
+        padding: 8px 10px; /* Reduz o padding do cabeçalho */
+    }
+
+    .header-dots {
+        flex-shrink: 0; /* ORDEM TÁTICA 1: Impede que os 'botões' sejam esmagados */
+    }
+
+    .header-title {
+        font-size: 0.7em; /* ORDEM TÁTICA 2: Reduz o tamanho da fonte para caber */
+        letter-spacing: 1px; /* Reduz um pouco o espaçamento entre as letras */
+        white-space: nowrap; /* Garante que o texto não quebre a linha */
+        overflow: hidden;    /* Esconde o que transbordar (segurança) */
+        text-overflow: ellipsis; /* Adiciona "..." se o texto ainda for muito grande */
+    }
+}
+
+/* =================================== */
+/* TEMA TÁTICO PARA IZITOAST           */
+/* =================================== */
+
+.iziToast-wrapper .iziToast {
+    background: rgba(10, 24, 15, 0.9); /* Fundo do terminal */
+    border: 1px solid var(--border-color);
+    box-shadow: 0 0 15px var(--border-glow);
+    border-radius: 0;
+    font-family: var(--font-secondary); /* Fonte monospace */
+    clip-path: polygon(0% 5px, 5px 0%, 100% 0%, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0% 100%);
+}
+
+.iziToast > .iziToast-body .iziToast-title {
+    color: #ffffff; /* Título mais destacado */
+    font-family: var(--font-primary); /* Fonte Orbitron para o título */
+    text-transform: uppercase;
+}
+
+.iziToast > .iziToast-body .iziToast-message {
+    color: var(--text-color); /* Cor do texto padrão */
+}
+
+/* Barra de progresso */
+.iziToast > .iziToast-progressbar > div {
+    background: var(--primary-color) !important;
+}
+
+/* Ícones e cores por tipo */
+.iziToast.iziToast-color-green {
+    border-left: 4px solid #27c93f; /* Verde sucesso */
+}
+.iziToast.iziToast-color-red {
+    border-left: 4px solid #ff5f56; /* Vermelho erro */
+}
+
+.iziToast .iziToast-icon {
+    color: var(--primary-color);
+}

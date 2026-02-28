@@ -2,228 +2,120 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AuthenticateRequest;
+use App\Http\Requests\RegisterRequest;
 use App\Models\SystemConfig;
 use App\Models\User;
+use App\Services\HabboApiService;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 class LoginController extends Controller
 {
-    protected $habboController;
+    protected HabboApiService $habboApi;
 
-    public function __construct(HabboController $habboController)
+    public function __construct(HabboApiService $habboApiService)
     {
-        $this->habboController = $habboController;
+        $this->habboApi = $habboApiService;
     }
 
     /**
-     * Display a listing of the resource.
+     * Exibe o formulário de login e gera o token da missão.
      */
-
-    public function perfil(){
-        return view('profile.index');
-    }
-
     public function index()
     {
+        $system = SystemConfig::find(1); // Mais simples que 'where' para ID
+        $baseMotto = $system ? $system->system_init_motto : 'REG-';
 
-        $system = SystemConfig::where('id', 1)->firstOrFail();
-
-        $tokenMissao = $system->system_init_motto;
-        $caracteres = 'AOCPTQW123456';
-        $randomString = substr(str_shuffle($caracteres), 0, 5);
-        $tokenMissao = $tokenMissao . $randomString;
-        session(['tokenMissao' => $tokenMissao]);
+        // Lógica para gerar token movida para um local mais limpo
+        $missionToken = $baseMotto . Str::random(5);
+        session(['missionToken' => $missionToken]);
 
         return view('auth.login');
     }
 
-    public function authenticate(Request $request)
+    /**
+     * Processa a tentativa de login.
+     */
+    public function authenticate(AuthenticateRequest $request)
     {
-        $credentials = $request->validate([
-            'nickname' => ['required'],
-            'senha' => ['required'],
+        $credentials = $request->validated();
+
+        if (!Auth::attempt($credentials)) {
+            // AQUI: Usando Session Flash em vez de Toastr
+            return redirect()->back()->with('notification', [
+                'type'    => 'error',
+                'title'   => 'AUTENTICAÇÃO FALHOU',
+                'message' => 'Verifique novamente seu ID de Operador e Senha de Acesso.',
+                'icon'    => 'fas fa-exclamation-triangle'
+            ])->withInput();
+        }
+
+        $request->session()->regenerate();
+        $user = Auth::user();
+
+        if (!$user->ativo) {
+            Auth::logout();
+
+            // AQUI: Usando Session Flash em vez de Toastr
+            return redirect()->back()->with('notification', [
+                'type'    => 'error',
+                'title'   => 'ACESSO BLOQUEADO',
+                'message' => 'Entre em contato com a administração para reativar seu acesso.',
+                'icon'    => 'fas fa-user-lock' // Ícone mais apropriado
+            ])->withInput();
+        }
+
+        return redirect()->route('dashboard');
+    }
+
+    /**
+     * Processa o registro de um novo usuário.
+     */
+    public function register(RegisterRequest $request)
+    {
+        $validated = $request->validated();
+
+        // 1. Pega os dados do Habbo
+        $habboData = $this->habboApi->getUserData($validated['nickname']);
+
+        if (!$habboData) {
+            Toastr::error('Este usuário não foi encontrado no Habbo.com.br.', 'Erro no Registro');
+            return redirect()->back()->withInput();
+        }
+
+        // 2. Valida a missão
+        $userMotto = $habboData['info']['motto'];
+        $missionToken = session('missionToken');
+
+        if ($userMotto !== $missionToken) {
+            Toastr::error("Sua missão no Habbo ({$userMotto}) não corresponde à esperada ({$missionToken}).", 'Missão Inválida');
+            return redirect()->back()->withInput();
+        }
+
+        // 3. Cria o usuário
+        $user = User::create([
+            'nickname'   => $validated['nickname'],
+            'email'      => $validated['email'],
+            'password'   => bcrypt($validated['password']),
+            'ativo'      => true,
         ]);
 
-
-        if (Auth::attempt(['nickname' => $request->usuario, 'password' => $request->senha])) {
-            $request->session()->regenerate();
-
-            $usuario = Auth::user(); // Obtenha o objeto do usuário autenticado
-            return $usuario;
-            if ($usuario->ativo) {
-                // Usuário ativo
-                $permissao_id = $usuario->permissao_id;
-                if ($usuario->permissao_id == 1) {
-                    return redirect()->route('usuarios', compact('usuario'));
-                } elseif ($usuario->permissao_id == 2) {
-                    return redirect()->route('protocolos', compact('usuario'));
-                } elseif ($usuario->permissao_id == 3) {
-                    return redirect()->route('index.protocolo', compact('usuario'));
-                }
-            } else {
-                // Usuário não está ativo
-                Auth::logout(); // Desconecta o usuário se não estiver ativo
-                Toastr::error('Entre em contato com o suporte.', 'Usuário Desativado!');
-                return redirect()->back();
-            }
-        }
-        Toastr::error('Verifique novamente seu usuário e senha.', 'Usuário ou Senha Incorretos!');
-        return redirect()->back();
+        Toastr::success('Sua conta foi criada com sucesso!', 'Bem-vindo(a)!');
+        return response()->json(['success' => true, 'message' => 'Conta criada com sucesso!'], 201);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Faz o logout do usuário.
      */
-    public function register(Request $request)
+    public function logout(Request $request)
     {
-        $response = $this->habboController->getHabbo($request->nickname);
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
-        // Verifica se a resposta foi bem sucedida
-        if ($response->isSuccessful()) {
-            // Acessando os dados da resposta diretamente
-            $data = $response->original;
-
-            // Acessando as propriedades do objeto $data
-            $userMotto = $data['userInfo']['motto'];
-
-            $data = [
-                'token'=> session('tokenMissao'),
-                'missao' => $userMotto,
-            ];
-            if($userMotto == session('tokenMissao')){
-                $valid = $request->validate([
-                    'nickname' => 'required|unique:users|max:50',
-                    'email' => 'required|unique:users|max:70',
-                    'password' => 'required|max:50',
-                ], [
-                    'nickname.required' => 'O campo NickName não pode ficar em branco.',
-                    'nickname.max' => 'O campo NickName não pode ter mais de 50 caracteres.',
-                    'nickname.unique' => 'Já existe um NickName com esse nickname.',
-                    'email.required' => 'O campo Email não pode ficar em branco.',
-                    'email.max' => 'O campo Email não pode ter mais de 70 caracteres.',
-                    'email.unique' => 'Este Email já foi cadastrado.',
-                    'password.required' => 'O campo Senha não pode ficar em branco.',
-                    'password.max' => 'O campo Senha não pode ter mais de 50 caracteres.',
-                ]);
-
-                $user = [
-                    'nickname' => $valid['nickname'],
-                    'email' => $valid['email'],
-                    'password' => bcrypt($valid['password']),
-                    'permission' => 1,
-                ];
-
-                User::create($user);
-
-                return redirect('login')->with('msg', 'Conta cadastrada');
-            }
-            return response()->json(['error' => true, 'data' => $data]);
-
-        } else {
-            // Se a requisição falhar, retorna uma resposta de erro
-            return $response;
-        }
-
-
-        //$novoUsuario = User::with('departamento', 'permissao')->find($usuarioCriado->id);
-    }
-
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create(Request $request)
-    {
-
-        dd($request->all());
-        $nickname = $request->nickname;
-        $response = $this->habboController->getHabbo($nickname);
-
-        // Verifica se a resposta foi bem sucedida
-        if ($response->isSuccessful()) {
-            // Acessando os dados da resposta diretamente
-            $data = $response->original;
-
-            // Acessando as propriedades do objeto $data
-            $userInfo = $data['userInfo'];
-            $userGroups = $data['userGroups'];
-
-
-        } else {
-            // Se a requisição falhar, retorna uma resposta de erro
-            return $response;
-        }
-
-    }
-
-
-    /**
-     * Display the specified resource.
-     */
-    public function show($nickname)
-    {
-        $response = $this->habboController->getHabbo($nickname);
-
-
-        if ($response->isSuccessful()) {
-            // Acessando os dados da resposta diretamente
-            $data = $response->original;
-
-            // Acessando as propriedades do objeto $data
-            $userInfo = $data['userInfo'];
-            $userGroups = $data['userGroups'];
-
-
-        } else {
-            // Se a requisição falhar, retorna uma resposta de erro
-            return $response;
-        }
-
-        $idPermissaoBancoDados = [
-            'soldado' => 'g-hhbr-3804c4b79cf892bc50938d55adfdc44a',
-            'cabo' => 'g-hhbr-ca5a69adf6ba7fc025acc8faccf53cfc',
-        ];
-
-        // Função de filtro para verificar se o ID do grupo está presente no array de permissões
-        $filtro = function($grupo) use ($idPermissaoBancoDados) {
-            // Verifica se o ID do grupo está presente no array de permissões
-            return in_array($grupo['id'], $idPermissaoBancoDados);
-        };
-
-        // Aplica o filtro no array de grupos
-        $gruposFiltrados = array_filter($userGroups, $filtro);
-
-        // Imprime os grupos filtrados
-
-        foreach ($gruposFiltrados as $item){
-            echo "<img src=". $this->habboController->getGroupImg($item['badgeCode']) .">";
-        }
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return redirect('/');
     }
 }
