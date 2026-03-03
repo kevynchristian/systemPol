@@ -4,7 +4,29 @@
 
 @section('content')
 
-    @if (auth()->user() && auth()->user()->is_admin)
+    @php
+        $isRecrutaOnly = auth()->user() && auth()->user()->roles->count() === 1 && auth()->user()->hasRole('Recruta');
+    @endphp
+
+    @if($isRecrutaOnly)
+        <div class="d-flex align-items-center justify-content-center" style="min-height: 70vh;">
+            <div class="text-center p-5" style="background: rgba(0,0,0,0.7); border: 2px solid var(--primary-color); border-radius: 10px; max-width: 600px; box-shadow: 0 0 20px rgba(0,255,204,0.2);">
+                <i class="fas fa-id-badge mb-4" style="font-size: 4rem; color: var(--primary-color); text-shadow: 0 0 15px rgba(0,255,204,0.5);"></i>
+                <h2 class="glitch mb-3" data-text="BEM-VINDO, RECRUTA" style="color: var(--primary-color); font-family: var(--font-primary);">BEM-VINDO, RECRUTA</h2>
+                <p class="mb-4" style="color: #ccc; font-size: 1.1rem; line-height: 1.6;">
+                    Seu cadastro foi aprovado com sucesso no Sistema Integrado de Gerenciamento Operacional.
+                </p>
+                <div class="p-3 mb-4" style="background: rgba(0,255,204,0.1); border-left: 4px solid var(--primary-color);">
+                    <span class="d-block mb-2 text-white"><i class="fas fa-exclamation-triangle" style="color: var(--primary-color);"></i> <strong>AÇÃO REQUERIDA:</strong></span>
+                    <span style="color: #aaa;">Para obter acesso completo ao terminal Operacional, você deve procurar a <strong>Divisão de Guias</strong> para realizar o seu Curso de Formação Inicial.</span>
+                </div>
+                <p class="text-muted" style="font-size: 0.85rem;">
+                    Permaneça no Habbo Hotel e aguarde instruções de um Guia/Instrutor disponível.
+                </p>
+            </div>
+        </div>
+    @else
+        @if (auth()->user() && auth()->user()->is_admin)
         <div class="row">
             <div class="col-xl-3 col-md-6 mb-4">
                 <div class="card-tactical">
@@ -12,7 +34,7 @@
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-uppercase mb-1">Operadores Ativos</div>
-                                <div class="h5 mb-0 font-weight-bold">47</div>
+                                <div class="h5 mb-0 font-weight-bold">{{ $totalOperadores }}</div>
                             </div>
                             <div class="col-auto">
                                 <i class="fas fa-user-astronaut fa-2x"></i>
@@ -28,7 +50,7 @@
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-uppercase mb-1">Relatórios Gerados (Mês)</div>
-                                <div class="h5 mb-0 font-weight-bold">189</div>
+                                <div class="h5 mb-0 font-weight-bold">{{ $relatoriosMes }}</div>
                             </div>
                             <div class="col-auto">
                                 <i class="fas fa-file-invoice fa-2x"></i>
@@ -44,7 +66,7 @@
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-uppercase mb-1">Alertas do Sistema</div>
-                                <div class="h5 mb-0 font-weight-bold text-warning">3</div>
+                                <div class="h5 mb-0 font-weight-bold {{ $alertasAtivos > 0 ? 'text-warning' : 'text-success' }}">{{ $alertasAtivos }}</div>
                             </div>
                             <div class="col-auto">
                                 <i class="fas fa-exclamation-triangle fa-2x"></i>
@@ -60,7 +82,7 @@
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-uppercase mb-1">Uptime do Servidor</div>
-                                <div class="h5 mb-0 font-weight-bold">99.8%</div>
+                                <div class="h5 mb-0 font-weight-bold">{{ $uptime }}</div>
                             </div>
                             <div class="col-auto">
                                 <i class="fas fa-server fa-2x"></i>
@@ -119,57 +141,40 @@
                 <div id="announcementCarousel" class="carousel slide tactical-carousel" data-bs-ride="carousel"
                     data-bs-interval="7000"> {{-- Autoplay ativado, intervalo de 7 segundos --}}
 
-                    {{-- Indicadores (Pontos - mantidos para referência) --}}
+                    {{-- Indicadores --}}
                     <div class="carousel-indicators">
-                        <button type="button" data-bs-target="#announcementCarousel" data-bs-slide-to="0" class="active"
-                            aria-current="true" aria-label="Slide 1"></button>
-                        <button type="button" data-bs-target="#announcementCarousel" data-bs-slide-to="1"
-                            aria-label="Slide 2"></button>
-                        <button type="button" data-bs-target="#announcementCarousel" data-bs-slide-to="2"
-                            aria-label="Slide 3"></button>
+                        @foreach($comunicados as $index => $comunicado)
+                            <button type="button" data-bs-target="#announcementCarousel" data-bs-slide-to="{{ $index }}" class="{{ $index == 0 ? 'active' : '' }}" aria-current="{{ $index == 0 ? 'true' : 'false' }}" aria-label="Slide {{ $index + 1 }}"></button>
+                        @endforeach
                     </div>
 
                     {{-- Slides --}}
                     <div class="carousel-inner">
-                        {{-- Slide 1 --}}
-                        <div class="carousel-item active">
-                            <div class="image-placeholder"> {{-- Novo container para a imagem --}}
-                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTWcsKq-YH8z86s4TDlRUW8Us1KNcv94CHi-A&s" class="d-block w-100 announcement-banner"
-                                    alt="Treinamento"
-                                    onerror="this.parentElement.classList.add('image-failed'); this.style.display='none';">
-                                {{-- Fallback visual --}}
+                        @forelse($comunicados as $index => $comunicado)
+                            <div class="carousel-item {{ $index == 0 ? 'active' : '' }}">
+                                <div class="image-placeholder">
+                                    <img src="{{ $comunicado->image_url ?? 'https://via.placeholder.com/800x400/101010/00ffcc?text=S.I.G.O.+%2B+COMUNICADO' }}" class="d-block w-100 announcement-banner" alt="Banner do Comunicado" onerror="this.parentElement.classList.add('image-failed'); this.style.display='none';">
+                                </div>
+                                <div class="carousel-caption d-none d-md-block" style="background: rgba(0,0,0,0.6); padding: 5px; border-radius: 5px; max-width: 80%; margin: 0 auto; backdrop-filter: blur(2px);">
+                                    <h5 style="color: var(--primary-color); font-family: var(--font-primary); font-size: 1rem; margin-bottom: 2px;">{{ strtoupper($comunicado->title) }}</h5>
+                                    <p class="announcement-description mb-1">{{ Str::limit($comunicado->content, 80) }}</p>
+                                    @if($comunicado->type == 'alerta')
+                                        <span class="badge badge-danger">ALERTA</span>
+                                    @elseif($comunicado->type == 'aula')
+                                        <span class="badge badge-warning">AULA</span>
+                                    @endif
+                                </div>
                             </div>
-                            <div class="carousel-caption d-none d-md-block">
-                                <p class="announcement-description">Pagamento Geral.</p>
-                                <a href="#" class="btn btn-sm btn-primary-tactical">VER DETALHES</a>
+                        @empty
+                            <div class="carousel-item active">
+                                <div class="image-placeholder" style="height: 150px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5);">
+                                    <div class="text-center w-100">
+                                        <i class="fas fa-satellite-dish fa-3x mb-3" style="color: rgba(0,255,204,0.3)"></i>
+                                        <p class="mb-0 text-muted" style="font-family: var(--font-primary);">CAIXA DE COMUNICADOS VAZIA</p>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        {{-- Slide 2 (Exemplo) --}}
-                        <div class="carousel-item">
-                            <div class="image-placeholder">
-                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR5Sf7WUfkPiJvENz3vjaitVVT9rPrJ0LE7GxRsyYPc-DZb3i1CHnHLPmJib12NB6c66SA&usqp=CAU" {{-- URL inválida para testar --}}
-                                    class="d-block w-100 announcement-banner" alt="Diretriz"
-                                    onerror="this.parentElement.classList.add('image-failed'); this.style.display='none';">
-                            </div>
-                            <div class="carousel-caption d-none d-md-block">
-                                <p class="announcement-description">Nova diretriz de comunicação implementada. Leia agora.
-                                </p>
-                                <a href="#" class="btn btn-sm btn-primary-tactical">LER DIRETRIZ</a>
-                            </div>
-                        </div>
-                        {{-- Slide 3 (Exemplo) --}}
-                        <div class="carousel-item">
-                            <div class="image-placeholder">
-                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIQll7X9JzYbKF5_81-Dez0DEfX7Fyx4TRRgZskWIgwK_SEZdNnK6uQs4TV1ev0vTBDVg&usqp=CAU"
-                                    class="d-block w-100 announcement-banner" alt="Alerta"
-                                    onerror="this.parentElement.classList.add('image-failed'); this.style.display='none';">
-                            </div>
-                            <div class="carousel-caption d-none d-md-block">
-                                <p class="announcement-description">Manutenção programada do servidor secundário hoje às
-                                    23:00.</p>
-                                <a href="#" class="btn btn-sm btn-primary-tactical">MAIS INFO</a>
-                            </div>
-                        </div>
+                        @endforelse
                     </div>
                 </div>
             </div>
@@ -181,7 +186,7 @@
                 </div>
                 <div class="card-body-tactical">
                     <ul class="quick-links-list">
-                        <li><a href="#"><i class="fas fa-user-plus fa-fw"></i> Registrar Operador</a></li>
+                        <li><a href="{{ route('admin.operadores.create') }}"><i class="fas fa-user-plus fa-fw"></i> Registrar Operador</a></li>
                         <li><a href="#"><i class="fas fa-gavel fa-fw"></i> Aplicar Punição</a></li>
                         <li><a href="#"><i class="fas fa-file-alt fa-fw"></i> Gerar Relatório</a></li>
                     </ul>
@@ -191,22 +196,32 @@
             {{-- 3. ÚLTIMOS LOGS (REPOSICIONADO) --}}
             <div class="card-tactical mb-4">
                 <div class="card-header-tactical">
-                    <i class="fas fa-terminal mr-1"></i> Últimos Logs
+                    <i class="fas fa-terminal mr-1"></i> Atividade Recente
                 </div>
                 <div class="card-body-tactical log-feed" style="max-height: 200px; overflow-y: auto;">
-                    <p><span class="log-time">[17:55]</span><span class="log-info">[INFO]</span> Login: Kevyn.</p>
-                    <p><span class="log-time">[17:54]</span><span class="log-warn">[WARN]</span> Acesso falhou:
-                        192.168.1.5.
-                    </p>
-                    <p><span class="log-time">[17:52]</span><span class="log-info">[INFO]</span> Login: Mikael.</p>
-                    <p><span class="log-time">[17:50]</span><span class="log-error">[ERROR]</span> DB Secundário offline.
-                    </p>
+                    @forelse($atividadesRecentes as $atividade)
+                        <p>
+                            <span class="log-time">[{{ $atividade->created_at->format('H:i') }}]</span>
+                            @if($atividade->status == 'aprovado')
+                                <span class="log-info" style="color: #00ffcc;">[APROV]</span>
+                            @else
+                                <span class="log-error" style="color: #ff3333;">[REPROV]</span>
+                            @endif
+                            <a href="{{ route('perfil.show', $atividade->aluno_id) }}" style="color: inherit; text-decoration: none;">
+                                <strong>{{ $atividade->aluno->nickname ?? 'Desconhecido' }}</strong>
+                            </a>
+                            foi avaliado em {{ $atividade->aula->name ?? 'Aula Desconhecida' }}.
+                        </p>
+                    @empty
+                        <p class="text-muted"><span class="log-time">[{{ now()->format('H:i') }}]</span><span class="log-info">[SYS]</span> Nenhum registro recente de aula encontrado.</p>
+                    @endforelse
                 </div>
             </div>
 
         </div>
     </div>
-
+        </div>
+    @endif
 @endsection
 @push('scripts')
     <script>
@@ -311,7 +326,9 @@
                                             </div>
                                             <div class="vitals-item">
                                                 <label>Patente</label>
-                                                <span>${data.patente}</span>
+                                                <span class="badge px-2 py-1" style="background-color: ${data.patente_color}1a; border: 1px solid ${data.patente_color}; color: ${data.patente_color}; text-shadow: 0 0 5px ${data.patente_color}40; font-size: 0.7rem; font-family: 'Orbitron', sans-serif; letter-spacing: 1px; border-radius: 0; line-height: 1;">
+                                                    ${data.patente.toUpperCase()}
+                                                </span>
                                             </div>
                                         </div>
 
@@ -330,6 +347,12 @@
                                             <div class="detail-section">
                                                 <label>Emblemas Destacados</label>
                                                 <div class="badges-grid">${badgesHtml}</div>
+                                            </div>
+
+                                            <div class="mt-3 text-right border-top pt-3" style="border-color: rgba(0, 255, 204, 0.2) !important;">
+                                                <a href="${data.profile_url}" class="btn btn-outline-primary btn-sm" style="color: var(--primary-color); border-color: var(--primary-color);">
+                                                    <i class="fas fa-folder-open"></i> ABRIR DOSSIÊ
+                                                </a>
                                             </div>
                                         </div>
 

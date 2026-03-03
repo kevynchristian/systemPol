@@ -11,5 +11,7 @@ class Role extends SpatieRole
         'guard_name',
         'hierarquia',
         'sync_with_role_id',
+        'color',
+        'tipo',
     ];
 }

@@ -30,6 +30,11 @@
                     </div>
 
                     <div class="form-group mb-3">
+                        <label for="color">Cor da Função</label>
+                        <input type="color" name="color" id="color" class="form-control" value="#6c757d" title="Escolha a cor que representará esta função" style="height: 40px; padding: 5px;">
+                    </div>
+
+                    <div class="form-group mb-3">
                         <label>Permissões</label>
                         <input type="text" id="permission-search" class="form-control mb-2" placeholder="Buscar permissão...">
                         <div class="permission-selector">
@@ -70,9 +75,9 @@
                 <div class="row g-3">
                     @forelse($funcoes as $funcao)
                         <div class="col-12 col-lg-6">
-                            <div class="patent-card">
-                                <div class="patent-card-header">
-                                    <h5 class="patent-name">{{ $funcao->name }}</h5>
+                            <div class="patent-card" style="border-left: 4px solid {{ $funcao->color ?? '#6c757d' }}; background-color: {{ $funcao->color ? $funcao->color.'1a' : 'rgba(0,0,0,0.5)' }};">
+                                <div class="patent-card-header" style="border-bottom: 1px solid {{ $funcao->color ?? '#6c757d' }}40;">
+                                    <h5 class="patent-name" style="color: {{ $funcao->color ?? '#ced4da' }}; text-shadow: 0 0 5px {{ $funcao->color ?? '#6c757d' }}40;">{{ $funcao->name }}</h5>
                                 </div>
                                 <div class="patent-card-body">
                                     <h6><i class="fas fa-user-shield fa-fw me-1 opacity-50"></i>Permissões:</h6>
@@ -88,6 +93,7 @@
                                     <button class="btn btn-sm btn-warning-tactical edit-btn"
                                         data-id="{{ $funcao->id }}"
                                         data-name="{{ $funcao->name }}"
+                                        data-color="{{ $funcao->color ?? '#6c757d' }}"
                                         data-permissions="{{ json_encode($funcao->permissions->pluck('name')) }}">
                                         <i class="fas fa-pencil-alt"></i> EDITAR
                                     </button>
@@ -172,16 +178,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- Função de Editar ---
     document.querySelectorAll('.edit-btn').forEach(button => {
         button.addEventListener('click', function() {
-            resetForm();
-
             const roleId = this.dataset.id;
             const roleName = this.dataset.name;
+            const roleColor = this.dataset.color || '#6c757d';
             const rolePermissions = JSON.parse(this.dataset.permissions);
 
             formTitle.textContent = `EDITAR: ${roleName.toUpperCase()}`;
             form.action = `/admin/funcoes/${roleId}`; // Rota correta para funções
             formMethodDiv.innerHTML = '@method("PUT")';
             nameInput.value = roleName;
+            document.getElementById('color').value = roleColor;
 
             rolePermissions.forEach(permissionName => {
                 const item = availableList.querySelector(`li[data-value="${permissionName}"]`);
@@ -208,7 +214,23 @@ function confirmDelete(roleId, roleName) {
     iziToast.question({
         theme: 'dark',
         timeout: 20000,
-        // ... (resto do seu código iziToast.question)
+        close: false,
+        overlay: true,
+        displayMode: 'once',
+        id: 'question',
+        zindex: 999,
+        title: 'ATENÇÃO',
+        message: `Tem certeza que deseja excluir permanentemente a função <b>${roleName}</b> e suas permissões associadas?`,
+        position: 'center',
+        buttons: [
+            ['<button><b>SIM, EXCLUIR</b></button>', function (instance, toast) {
+                instance.hide({ transitionOut: 'fadeOut' }, toast, 'button');
+                document.getElementById('delete-form-' + roleId).submit();
+            }, true],
+            ['<button>CANCELAR</button>', function (instance, toast) {
+                instance.hide({ transitionOut: 'fadeOut' }, toast, 'button');
+            }],
+        ]
     });
 }
 </script>

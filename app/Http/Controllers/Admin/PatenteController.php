@@ -42,14 +42,24 @@ class PatenteController extends Controller
             'name' => 'required|string|unique:roles,name',
             'hierarquia' => 'required|integer|min:0',
             'permissions' => 'nullable|array',
-            'sync_with_role_id' => 'nullable|exists:roles,id'
+            'sync_with_role_id' => 'nullable|exists:roles,id',
+            'color' => 'nullable|string|max:7',
+            'tipo' => 'required|in:militar,executivo'
         ]);
 
         $role = Role::create([
             'name' => $request->name,
             'hierarquia' => $request->hierarquia,
             'sync_with_role_id' => $request->sync_with_role_id,
+            'color' => $request->color,
+            'tipo' => $request->tipo,
         ]);
+
+        // Auto-gera permissões de gestão para esta patente
+        $slug = \Illuminate\Support\Str::slug($request->name, '_');
+        Permission::firstOrCreate(['name' => 'promove_' . $slug, 'guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'rebaixa_' . $slug, 'guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'exonera_' . $slug, 'guard_name' => 'web']);
 
         if ($request->has('permissions')) {
             $role->syncPermissions($request->permissions);
@@ -67,7 +77,9 @@ class PatenteController extends Controller
             'name' => 'required|string|unique:roles,name,' . $patente->id,
             'hierarquia' => 'required|integer|min:0',
             'permissions' => 'nullable|array',
-            'sync_with_role_id' => 'nullable|exists:roles,id'
+            'sync_with_role_id' => 'nullable|exists:roles,id',
+            'color' => 'nullable|string|max:7',
+            'tipo' => 'required|in:militar,executivo'
         ]);
 
 

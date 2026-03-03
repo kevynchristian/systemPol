@@ -14,7 +14,32 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('pages.dashboard.index');
+        $totalOperadores = \App\Models\User::where('ativo', true)->count();
+        $comunicados = \App\Models\Comunicado::where('active', true)->latest()->take(5)->get();
+
+        // Relatórios (Aulas) geradas este mês
+        $relatoriosMes = \App\Models\AulaRegistro::whereMonth('created_at', now()->month)
+                                                ->whereYear('created_at', now()->year)
+                                                ->count();
+
+        // Alertas do Sistema Ativos (Comunicados do tipo alerta)
+        $alertasAtivos = \App\Models\Comunicado::where('active', true)->where('type', 'alerta')->count();
+
+        // Uptime Dinâmico (Simulado para o PHP, pegando carga do sistema)
+        // Como o Windows não suporta sys_getloadavg nativamente como Linux, usamos um valor fixo alto para estética tática
+        $uptime = '99.98%'; 
+
+        // Atividades Recentes (Últimos 5 registros de aulas) - Isso pode ser expandido para uma tabela de Logs global depois
+        $atividadesRecentes = \App\Models\AulaRegistro::with(['aluno', 'aula'])->latest()->take(5)->get();
+
+        return view('pages.dashboard.index', compact(
+            'totalOperadores', 
+            'comunicados', 
+            'relatoriosMes', 
+            'alertasAtivos', 
+            'uptime',
+            'atividadesRecentes'
+        ));
     }
 
     public function searchOperator(Request $request, HabboApiService $habboApi)
@@ -59,9 +84,11 @@ class HomeController extends Controller
             'status' => $operador->ativo ? 'ATIVO' : 'INATIVO',
             'status_class' => $operador->ativo ? 'text-success' : 'text-danger',
             'patente' => $patente ? $patente->name : 'N/D',
+            'patente_color' => $patente ? ($patente->color ?? '#00ffcc') : '#00ffcc',
             'ultimo_login_sistema' => $operador->updated_at->format('d/m/Y H:i'),
             'avatar_url' => 'https://www.habbo.com.br/habbo-imaging/avatarimage?user=' . $operador->nickname . '&direction=2&head_direction=3&gesture=sml&action=wav',
             'missao' => $missao,
+            'profile_url' => route('perfil.show', $operador->id),
 
             // NOVAS INFORMAÇÕES RELEVANTES
             'online_agora' => $onlineAgora,

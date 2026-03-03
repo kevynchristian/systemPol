@@ -36,6 +36,7 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\TrackUserPresence::class,
         ],
 
         'api' => [
@@ -66,6 +67,8 @@ class Kernel extends HttpKernel
 
         'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
         'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
-        'superadmin' => \App\Http\Middleware\SuperAdminMiddleware::class, // ADICIONE ESTA LINHA
+        'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+        'superadmin' => \App\Http\Middleware\SuperAdminMiddleware::class,
+        'check.recruta' => \App\Http\Middleware\CheckRecruta::class,
     ];
 }

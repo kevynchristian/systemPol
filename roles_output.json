@@ -1,0 +1,62 @@
+[
+    {
+        "name": "Guias",
+        "hierarquia": 0
+    },
+    {
+        "name": "L\u00edder Guias",
+        "hierarquia": 0
+    },
+    {
+        "name": "Vice L\u00edder Guias",
+        "hierarquia": 0
+    },
+    {
+        "name": "Recruta",
+        "hierarquia": 1
+    },
+    {
+        "name": "Soldado",
+        "hierarquia": 2
+    },
+    {
+        "name": "Cabo",
+        "hierarquia": 3
+    },
+    {
+        "name": "Sargento",
+        "hierarquia": 4
+    },
+    {
+        "name": "Subtenente",
+        "hierarquia": 5
+    },
+    {
+        "name": "Aspirante",
+        "hierarquia": 6
+    },
+    {
+        "name": "Tenente",
+        "hierarquia": 7
+    },
+    {
+        "name": "Capit\u00e3o",
+        "hierarquia": 8
+    },
+    {
+        "name": "Major",
+        "hierarquia": 9
+    },
+    {
+        "name": "Tenente Coronel",
+        "hierarquia": 10
+    },
+    {
+        "name": "Coronel",
+        "hierarquia": 11
+    },
+    {
+        "name": "Comando",
+        "hierarquia": 12
+    }
+]

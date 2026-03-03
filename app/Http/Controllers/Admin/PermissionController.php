@@ -47,6 +47,23 @@ class PermissionController extends Controller
         $permission->delete();
 
 
+
         return redirect()->route('admin.permissoes.index')->with('success', 'Permissão excluída com sucesso!');
+    }
+
+    /**
+     * Remove esta permissão de todos os cargos que a possuam.
+     */
+    public function reset(Permission $permission)
+    {
+        // Pega todas as roles (patentes e funções) que têm esta permissão
+        $roles = $permission->roles()->get();
+        
+        foreach ($roles as $role) {
+            $role->revokePermissionTo($permission);
+        }
+
+        return redirect()->route('admin.permissoes.index')
+            ->with('success', "A permissão '{$permission->name}' foi removida de {$roles->count()} cargo(s) com sucesso!");
     }
 }

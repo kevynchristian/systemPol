@@ -6,6 +6,7 @@ use App\Http\Requests\AuthenticateRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Models\SystemConfig;
 use App\Models\User;
+use App\Models\Role;
 use App\Services\HabboApiService;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
@@ -102,6 +103,15 @@ class LoginController extends Controller
             'password'   => bcrypt($validated['password']),
             'ativo'      => true,
         ]);
+
+        // 4. Atribui a Patente/Função Padrão de "Recruta"
+        $recrutaRole = Role::firstOrCreate([
+            'name' => 'Recruta',
+            'guard_name' => 'web'
+        ], [
+            'hierarquia' => 1
+        ]);
+        $user->assignRole($recrutaRole);
 
         Toastr::success('Sua conta foi criada com sucesso!', 'Bem-vindo(a)!');
         return response()->json(['success' => true, 'message' => 'Conta criada com sucesso!'], 201);

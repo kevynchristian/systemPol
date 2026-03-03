@@ -59,11 +59,23 @@
                                         class="d-inline">
                                         @csrf
                                         @method('DELETE')
+                                        @method('DELETE')
                                         {{-- O botão agora é do tipo "button" para não enviar o form, e chama nossa função JS --}}
                                         <button type="button" class="btn btn-sm btn-danger-tactical"
                                             onclick="confirmDelete({{ $permission->id }}, '{{ $permission->name }}')"
                                             data-bs-toggle="tooltip" title="Excluir Permissão">
                                             <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                    {{-- FORM DE RESET --}}
+                                    <form id="reset-form-{{ $permission->id }}"
+                                        action="{{ route('admin.permissoes.reset', $permission->id) }}" method="POST"
+                                        class="d-inline ms-1">
+                                        @csrf
+                                        <button type="button" class="btn btn-sm btn-warning-tactical"
+                                            onclick="confirmReset({{ $permission->id }}, '{{ $permission->name }}')"
+                                            data-bs-toggle="tooltip" title="Remover de Todos os Cargos">
+                                            <i class="fas fa-eraser"></i> LIMPAR
                                         </button>
                                     </form>
                                 </div>
@@ -102,6 +114,30 @@ function confirmDelete(permissionId, permissionName) {
             }, true], // O 'true' foca neste botão
             ['<button>NÃO, CANCELAR</button>', function (instance, toast) {
                 // Se o usuário clicar em NÃO, apenas fecha o toast
+                instance.hide({ transitionOut: 'fadeOut' }, toast, 'button');
+            }],
+        ]
+    });
+}
+
+function confirmReset(permissionId, permissionName) {
+    iziToast.question({
+        theme: 'dark',
+        timeout: 20000,
+        close: false,
+        overlay: true,
+        displayMode: 'once',
+        id: 'question-reset',
+        zindex: 999,
+        title: 'CUIDADO',
+        message: `Isto irá remover a permissão <strong>${permissionName}</strong> de TODOS os militares e cargos em massa. Você tem certeza?`,
+        position: 'center',
+        buttons: [
+            ['<button><b>SIM</b>, LIMPAR DE TODOS</button>', function (instance, toast) {
+                instance.hide({ transitionOut: 'fadeOut' }, toast, 'button');
+                document.getElementById('reset-form-' + permissionId).submit();
+            }, true],
+            ['<button>NÃO, CANCELAR</button>', function (instance, toast) {
                 instance.hide({ transitionOut: 'fadeOut' }, toast, 'button');
             }],
         ]

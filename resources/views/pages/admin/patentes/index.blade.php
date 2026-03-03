@@ -30,6 +30,19 @@
                         </div>
 
                         <div class="form-group mb-3">
+                            <label for="tipo">Tipo da Patente</label>
+                            <select name="tipo" id="tipo" class="form-control" required>
+                                <option value="militar">Militar</option>
+                                <option value="executivo">Executivo</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="color">Cor da Patente</label>
+                            <input type="color" name="color" id="color" class="form-control" value="#00ffcc" title="Escolha a cor que representará esta patente" style="height: 40px; padding: 5px;">
+                        </div>
+
+                        <div class="form-group mb-3">
                             <label for="hierarquia">Nível Hierárquico</label>
                             <input type="number" name="hierarquia" id="hierarquia" class="form-control" required
                                 min="0" placeholder="Ex: 1 para Soldado, 10 para Comando">
@@ -106,10 +119,13 @@
                     <div class="row g-3">
                         @forelse($patentes as $patente)
                             <div class="col-12 col-lg-6">
-                                <div class="patent-card">
-                                    <div class="patent-card-header">
-                                        <h5 class="patent-name">{{ $patente->name }}</h5>
-                                        <span class="patent-level">NÍVEL {{ $patente->hierarquia }}</span>
+                                <div class="patent-card" style="border-left: 4px solid {{ $patente->color ?? 'var(--primary-color)' }}; background-color: {{ $patente->color ? $patente->color.'1a' : 'rgba(0,0,0,0.5)' }};">
+                                    <div class="patent-card-header" style="border-bottom: 1px solid {{ $patente->color ?? 'var(--primary-color)' }}40;">
+                                        <h5 class="patent-name" style="color: {{ $patente->color ?? 'var(--primary-color)' }}; text-shadow: 0 0 5px {{ $patente->color ?? 'var(--primary-color)' }}40;">{{ $patente->name }}</h5>
+                                        <span class="patent-level" style="color: {{ $patente->color ?? 'black' }};">
+                                            NÍVEL {{ $patente->hierarquia }} 
+                                            <span class="badge {{ $patente->tipo === 'executivo' ? 'bg-warning text-dark' : 'bg-secondary' }}">{{ strtoupper($patente->tipo) }}</span>
+                                        </span>
                                     </div>
                                     <div class="patent-card-body">
                                         <h6><i class="fas fa-user-shield fa-fw me-1 opacity-50"></i>Permissões:</h6>
@@ -121,10 +137,13 @@
                                             @endforelse
                                         </div>
                                     </div>
-                                    <div class="patent-card-footer">
+                                    <div class="patent-card-footer" style="border-top: 1px solid {{ $patente->color ?? 'var(--primary-color)' }}40;">
                                         <button class="btn btn-sm btn-warning-tactical edit-btn"
                                             data-id="{{ $patente->id }}" data-name="{{ $patente->name }}"
                                             data-hierarquia="{{ $patente->hierarquia }}"
+                                            data-color="{{ $patente->color ?? '#00ffcc' }}"
+                                            data-tipo="{{ $patente->tipo }}"
+                                            data-sync-id="{{ $patente->sync_with_role_id }}"
                                             data-permissions="{{ json_encode($patente->permissions->pluck('name')) }}">
                                             <i class="fas fa-pencil-alt"></i> EDITAR
                                         </button>
@@ -164,6 +183,8 @@
             const form = document.getElementById('role-form');
             const formTitle = document.getElementById('form-title');
             const nameInput = document.getElementById('name');
+            const colorInput = document.getElementById('color');
+            const tipoInput = document.getElementById('tipo');
             const hierarquiaInput = document.getElementById('hierarquia');
             const syncSelect = document.getElementById('sync_with_role_id');
             const formMethodDiv = document.getElementById('form-method');
@@ -255,6 +276,8 @@
                     const roleData = {
                         name: this.dataset.name,
                         hierarquia: this.dataset.hierarquia,
+                        color: this.dataset.color,
+                        tipo: this.dataset.tipo,
                         permissions: JSON.parse(this.dataset.permissions),
                         syncId: this.dataset.syncId || ""
                     };
@@ -262,8 +285,10 @@
                     // 1. Preenche os campos do formulário
                     formTitle.textContent = `EDITAR: ${roleData.name.toUpperCase()}`;
                     form.action = `/admin/patentes/${roleId}`;
-                    formMethodDiv.innerHTML = '@method('PUT')';
+                    formMethodDiv.innerHTML = '@method("PUT")';
                     nameInput.value = roleData.name;
+                    colorInput.value = roleData.color || '#00ffcc';
+                    tipoInput.value = roleData.tipo || 'militar';
                     hierarquiaInput.value = roleData.hierarquia;
                     syncSelect.value = roleData.syncId;
 
@@ -299,6 +324,8 @@
                 form.action = originalAction;
                 formMethodDiv.innerHTML = '';
                 form.reset();
+                colorInput.value = '#00ffcc';
+                tipoInput.value = 'militar';
 
                 assignedList.querySelectorAll('li').forEach(item => {
                     availableList.appendChild(item);

@@ -45,4 +45,20 @@ class User extends Authenticatable
     public function getAuthPassword(){
         return $this->password;
     }
+
+    /**
+     * Get the student's training records.
+     */
+    public function aulasRegistros()
+    {
+        return $this->hasMany(AulaRegistro::class, 'aluno_id');
+    }
+
+    /**
+     * Check if user is currently online based on cache.
+     */
+    public function isOnline()
+    {
+        return \Illuminate\Support\Facades\Cache::has('user-is-online-' . $this->id);
+    }
 }

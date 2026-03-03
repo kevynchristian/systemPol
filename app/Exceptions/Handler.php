@@ -44,5 +44,22 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+
+        // REGISTRA AUTOMATICAMENTE TENTATIVAS DE ACESSO NEGADO (403)
+        $this->renderable(function (\Throwable $e, $request) {
+            // Se for qualquer erro 403 ou as classes específicas de acesso negado
+            if (method_exists($e, 'getStatusCode') && $e->getStatusCode() === 403) {
+                if (auth()->check()) {
+                    \App\Models\SecurityLog::create([
+                        'user_id' => auth()->id(),
+                        'url' => $request->fullUrl(),
+                        'method' => $request->method(),
+                        'ip_address' => $request->ip(),
+                        'user_agent' => $request->userAgent(),
+                        'type' => 'unauthorized_access'
+                    ]);
+                }
+            }
+        });
     }
 }
